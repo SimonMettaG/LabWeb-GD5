@@ -12,7 +12,7 @@
 <div class="container-fluid" style="text-align: center">
     <div class="row">
         <div class="col">
-            <div style="border: 3px black solid; border-radius: 5px" id="start" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div  id="Uno" style="border: 3px black solid; border-radius: 5px" id="start" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5>Salida de planta</h5>
                 <hr>
                 @foreach ($tasks as $task)
@@ -27,7 +27,7 @@
             </div>
         </div>
         <div class="col">
-            <div style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div id="Dos" style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5>LDC</h5>
                 <hr>
                 @foreach ($tasks as $task)
@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class="col">
-            <div style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div id="Tres" style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5>Proceso de entrega</h5>
                 <hr>
                 @foreach ($tasks as $task)
@@ -56,7 +56,7 @@
         </div>
         <div class="col">
             <div style="border: 3px black solid; border-radius: 5px">
-                <div style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div id="Cuatro A" style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <h5>Entregado</h5>
                     <hr>
                     @foreach ($tasks as $task)
@@ -69,7 +69,7 @@
                     @endforeach
                 </div>
                 <br>
-                <div style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div id="Cuatro B" style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <h5>Fallido</h5>
                     <hr>
                     @foreach ($tasks as $task)
@@ -100,7 +100,7 @@
             data: {}
         })
         .done(function(response) {
-            $('#start').append('<div class="container" style="border: 1px black solid; border-radius: 5px" draggable="true">Task #'+response.id+'</div><br>');
+            $('#start').append('<div class="container" style="border: 1px black solid; border-radius: 5px" draggable="true">Task #'+response.id+'</div>');
             console.log(response.id, response.status);
         })
         .fail(function(jqXHR, response) {
@@ -108,7 +108,7 @@
         });
     }
 
-    /*
+    
     function updateTask(taskId) {
         let theURL='{{ route('tasks.update', 0)}}'+taskId;
         //console.log(taskId);
@@ -124,7 +124,7 @@
             }
         })
         .done(function(response) {
-            if(response.is_done == 1) {
+            if(response.status == 1) {
                 $('#status' + taskId).html('No');
             }
             else {
@@ -136,7 +136,7 @@
             console.log('Fallido', response);
         });
     }
-    */
+    
 
     function allowDrop(ev) {
         ev.preventDefault();
@@ -144,13 +144,31 @@
 
     function drag(ev) {
         aaaaa = ev.target
-        ev.dataTransfer.setData("text", ev.target);
+        var target = ev.target;
+        var parent = target.parentElement;
+        console.log(parent.id)
+        if (parent.id == "Cuatro A") {
+            console.log("AAAAA")
+            alert("Producto ya fue entregado");
+        }
+        else if(parent.id == "Cuatro B"){
+            console.log("bbb")
+            alert("Producto fallido al entregar");
+        }
+        else{
+            ev.dataTransfer.setData("text", ev.target);
+        }
     }
 
     function drop(ev) {
         ev.preventDefault();
-        var data = ev.dataTransfer.getData("text");
-        console.log(data);
-        ev.target.appendChild(aaaaa);
+        if (ev.target.id == "Uno") {
+            alert("No puede regresar a Planta");
+        }
+        else
+        {
+            var data = ev.dataTransfer.getData("text");
+            ev.target.appendChild(aaaaa);
+        }
     }
 </script>
