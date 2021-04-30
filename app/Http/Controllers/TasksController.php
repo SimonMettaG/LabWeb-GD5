@@ -74,7 +74,14 @@ class TasksController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $arr = $request->input();
+        $task = Task::find($id);
+        $history = History::create(['tasks_id' => $task->id, 'from' => $task->status, 'to'=>$arr['status']]);
+        $task->status = $arr['status'];
+        //$task->status = new status
+        //$task->status = 
+        $task->save();
+        return response()->json($task);
     }
 
     /**
