@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\History;
+use App\Events\TestEvent;
+use App\Events\ChangeStatus;
 
 use function GuzzleHttp\Promise\task;
 
@@ -40,6 +42,7 @@ class TasksController extends Controller
     public function store(Request $request)
     {
         $task = Task::create(['status' => 1]);
+        broadcast(new ChangeStatus($task, 0))->toOthers();
         return response()->json($task);
     }
 
@@ -76,11 +79,16 @@ class TasksController extends Controller
     {
         $arr = $request->input();
         $task = Task::find($id);
-        $history = History::create(['tasks_id' => $task->id, 'from' => $task->status, 'to'=>$arr['status']]);
+        $oldStatus = $task->status;
+        $history = History::create(['tasks_id' => $task->id, 'from' => $task->status, 'to'=>$oldStatus]);
+
+
+
         $task->status = $arr['status'];
-        //$task->status = new status
-        //$task->status = 
         $task->save();
+
+        broadcast(new ChangeStatus($task, $oldStatus))->toOthers();
+
         return response()->json($task);
     }
 

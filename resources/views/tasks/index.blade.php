@@ -12,7 +12,7 @@
 <div class="container-fluid" style="text-align: center">
     <div class="row">
         <div class="col">
-            <div  id="1" style="border: 3px black solid; border-radius: 5px" id="start" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div style="border: 3px black solid; border-radius: 5px" id="cont1" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5>Salida de planta</h5>
                 <hr>
                 @foreach ($tasks as $task)
@@ -23,11 +23,10 @@
                         <br>
                     @endif
                 @endforeach
-                <br>
             </div>
         </div>
         <div class="col">
-            <div id="2" style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div id="cont2" style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5>LDC</h5>
                 <hr>
                 @foreach ($tasks as $task)
@@ -41,7 +40,7 @@
             </div>
         </div>
         <div class="col">
-            <div id="3" style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div id="cont3" style="border: 3px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h5>Proceso de entrega</h5>
                 <hr>
                 @foreach ($tasks as $task)
@@ -56,7 +55,7 @@
         </div>
         <div class="col">
             <div style="border: 3px black solid; border-radius: 5px">
-                <div id="4" style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div id="cont4" style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <h5>Entregado</h5>
                     <hr>
                     @foreach ($tasks as $task)
@@ -69,7 +68,7 @@
                     @endforeach
                 </div>
                 <br>
-                <div id="5" style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div id="cont5" style="border: 2px black solid; border-radius: 5px" ondrop="drop(event)" ondragover="allowDrop(event)">
                     <h5>Fallido</h5>
                     <hr>
                     @foreach ($tasks as $task)
@@ -84,6 +83,10 @@
             </div>
         </div>
     </div>
+</div>
+<br>
+<div id="textarea" class="container" style="border: 2px black solid; border-radius: 5px">
+    
 </div>
 @endsection
 
@@ -100,7 +103,8 @@
             data: {}
         })
         .done(function(response) {
-            $('#start').append('<div class="container" style="border: 1px black solid; border-radius: 5px" draggable="true">Task #'+response.id+'</div>');
+            $('#cont1').append('<div id='+response.id+' name='+response.id+'class="container" style="border: 1px black solid; border-radius: 5px" draggable="true" ondragstart="drag(event)">Task #'+response.id+'</div><br>');
+
             console.log(response.id, response.status);
         })
         .fail(function(jqXHR, response) {
@@ -142,7 +146,7 @@
         idvalue = ev.target.attributes.id.nodeValue;
         var target = ev.target;
         var parent = target.parentElement;
-        if (parent.id == "4") {
+        if (parent.id == "cont4") {
             alert("Producto ya fue entregado");
         }
         /*else if(parent.id == "5"){
@@ -156,7 +160,7 @@
     function drop(ev) {
         ev.preventDefault();
         statusvalue = ev.target.attributes.id.nodeValue;
-        if (ev.target.id == "1") {
+        if (ev.target.id == "cont1") {
             alert("No puede regresar a Planta");
         }
         else
@@ -165,6 +169,37 @@
             ev.target.appendChild(aaaaa);
         }
 
+        if(statusvalue=="cont1"){
+            statusvalue=1;
+        }
+        else if(statusvalue=="cont2"){
+            statusvalue=2;
+        }
+        else if(statusvalue=="cont3"){
+            statusvalue=3;
+        }
+        else if(statusvalue=="cont4"){
+            statusvalue=4;
+        }
+        else{
+            statusvalue=5;
+        }
+
         updateTask(idvalue, statusvalue);
     }
+
+    Echo.channel("test")
+        .listen('TestEvent', function(data) {
+            console.log(data);
+        });
+    
+    Echo.channel("changeStatus")
+        .listen('ChangeStatus', function(data) {
+            console.log(data);
+            $("#"+data.task.id).remove();
+            $('#cont'+data.task.status).append('<div id='+data.task.id+' name='+data.task.id+'class="container" style="border: 1px black solid; border-radius: 5px" draggable="true" ondragstart="drag(event)">Task #'+data.task.id+'</div><br>');
+            $('#textarea').append('<p>Task '+data.task.id+' moved to container '+data.task.status+'</p>');
+        });
 </script>
+
+@endpush
